@@ -4,7 +4,8 @@ export const Login = () => {
   return (
     <div className="loginContainer">
       <div className="loginBox">
-        <h1 style={{ marginTop: '40px' }}>NESTJS</h1>
+        <h1 style={{ marginTop: '20px' }}>NESTJS</h1>
+        <h2 style={{ margin: '0px' }}>Log In</h2>
         <div className="inputBox">
           <input placeholder="ID" className="input inputID" />
           <input
