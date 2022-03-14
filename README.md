@@ -25,6 +25,7 @@ nestjs Study
 
 - 42api를 이용한 Oauth login
 - 1주차 추가 과제: backend에서 throw한 exception이나 error를 front에서 적절히 핸들링 하는법 알아오기
+- ref: https://github.com/ykoh42/42OAuth-NestJS
 
 3주
 
