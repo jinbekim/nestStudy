@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const SignUp = () => {
   const [id, setId] = useState<string>('');
@@ -11,20 +11,25 @@ export const SignUp = () => {
   const changePw = (value: string) => {
     setPw(value);
   };
-  const signUp = () => {
-    console.log(id, pw);
-    axios.post('http://localhost:5000/signup', {
-      id: id,
-      password: pw,
-    });
+  const SignUp = async () => {
+    try {
+      await axios.post('http://localhost:5000/auth/sign_up', {
+        //post하는 경로도 본인의 백엔드에 알맞게 수정해주세요!
+        userId: id, //userId와 userPassword는 제 백엔드 api에서 post 해주는 body값이라
+        userPassword: pw, //본인의 body에 맞게 post하시면 됩니다!
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
   return (
     <div className="loginContainer">
       <div className="loginBox">
         <h1 style={{ marginTop: '20px' }}>NESTJS</h1>
         <h2 style={{ margin: '0px' }}>Sign Up</h2>
-        <div className="inputBox">
+        <form className="inputBox">
           <input
+            autoComplete="false"
             placeholder="ID"
             className="input inputID"
             onChange={(e) => {
@@ -32,6 +37,7 @@ export const SignUp = () => {
             }}
           />
           <input
+            autoComplete="false"
             placeholder="PASSWORD"
             className="input inputPW"
             type="password"
@@ -39,12 +45,12 @@ export const SignUp = () => {
               changePw(e.target.value);
             }}
           />
-        </div>
+        </form>
         <div className="buttonBox">
           <div
             className="Button"
             onClick={() => {
-              signUp();
+              SignUp();
             }}
           >
             Sign up
