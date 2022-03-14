@@ -2,10 +2,11 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthCredentialDto } from './dto/auth-credential.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  private users: AuthCredentialDto[] = [];
+  private users: User[] = [];
 
   constructor(private readonly jwtService: JwtService) {}
 
@@ -31,10 +32,17 @@ export class AuthService {
   }
 
   signUp(authCredentialDto: AuthCredentialDto) {
+    let { email, password } = authCredentialDto;
+    const user = this.users.find((user) => user.email === email);
+    if (user) throw new UnauthorizedException('Email already exists');
     const saltRound = 10;
     const salt = bcrypt.genSaltSync(saltRound);
     const hash = bcrypt.hashSync(authCredentialDto.password, salt);
-    authCredentialDto.password = hash;
-    this.users.push(authCredentialDto);
+    password = hash;
+    this.users.push({
+      id: this.users.length + 1,
+      email,
+      password,
+    });
   }
 }
