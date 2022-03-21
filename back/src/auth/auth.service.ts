@@ -24,8 +24,11 @@ export class AuthService {
       throw new UnauthorizedException('Email or password is incorrect');
     if (!bcrypt.compareSync(authCredentialDto.password, user.password))
       throw new UnauthorizedException('Email or password is incorrect');
+    return this.signToken(user.email);
+  }
+  async signToken(email: string): Promise<{ accessToken: string }> {
     const payload = {
-      email: authCredentialDto.email,
+      email,
     };
     const token = this.jwtService.sign(payload);
     return Promise.resolve({ accessToken: token });
