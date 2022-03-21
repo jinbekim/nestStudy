@@ -11,6 +11,10 @@ export const SignUp = () => {
   const changePw = (value: string) => {
     setPw(value);
   };
+  const signInWith42 = async () => {
+    window.location.href =
+      'https://api.intra.42.fr/oauth/authorize?client_id=c178551e523b009994be1d911e271f6b2c978e36523ce74a1d56ac50ddf7aed1&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Floading&response_type=code';
+  };
   const SignUp = async () => {
     try {
       await axios.post('http://localhost:5000/auth/sign_up', {
@@ -25,8 +29,8 @@ export const SignUp = () => {
   return (
     <div className="loginContainer">
       <div className="loginBox">
-        <h1 style={{ marginTop: '20px' }}>NESTJS</h1>
-        <h2 style={{ margin: '0px' }}>Sign Up</h2>
+        <div className="nestjsBox">NESTJS</div>
+        <div className="signUpBox">Sign Up</div>
         <form className="inputBox">
           <input
             autoComplete="false"
@@ -58,6 +62,9 @@ export const SignUp = () => {
           <Link to="/" className="Button" style={{ textDecoration: 'none' }}>
             Go back to login
           </Link>
+        </div>
+        <div className="ftBtn" onClick={() => signInWith42()}>
+          Sign in with "42Seoul"
         </div>
       </div>
     </div>
