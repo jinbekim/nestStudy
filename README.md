@@ -28,7 +28,7 @@ nestjs Study
 - ref: https://github.com/ykoh42/42OAuth-NestJS
 
 3주
-
+- 1주차 추가 과제 + 2주차 추가 과제: passport + oauth flow 추가 
 - CRUD ( db x)
 
 4주
