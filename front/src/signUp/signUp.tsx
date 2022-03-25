@@ -11,9 +11,10 @@ export const SignUp = () => {
   const changePw = (value: string) => {
     setPw(value);
   };
-  const signInWith42 = async () => {
-    window.location.href =
-      'https://api.intra.42.fr/oauth/authorize?client_id=c178551e523b009994be1d911e271f6b2c978e36523ce74a1d56ac50ddf7aed1&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Floading&response_type=code';
+  const signInWith42 = () => {
+    window.location.replace(
+      'https://api.intra.42.fr/oauth/authorize?client_id=c178551e523b009994be1d911e271f6b2c978e36523ce74a1d56ac50ddf7aed1&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Floading&response_type=code'
+    );
   };
   const SignUp = async () => {
     try {

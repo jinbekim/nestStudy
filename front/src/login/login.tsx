@@ -21,8 +21,9 @@ export const Login = () => {
     alert(response.data);
   };
   const signInWith42 = async () => {
-    window.location.href =
-      'https://api.intra.42.fr/oauth/authorize?client_id=c178551e523b009994be1d911e271f6b2c978e36523ce74a1d56ac50ddf7aed1&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Floading&response_type=code';
+    window.location.replace(
+      'https://api.intra.42.fr/oauth/authorize?client_id=0bc8b4776712b5605a023779b38bed06bc3ed503c937a286394612f0f4e0725e&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Floading&response_type=code'
+    );
   };
   return (
     <div className="loginContainer">
