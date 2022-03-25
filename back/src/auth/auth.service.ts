@@ -1,44 +1,64 @@
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { STATUS_CODES } from 'http';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { IdPwDto } from './dto/idpw.dto';
 import { UserEntity } from './entity/user.entity';
+import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
+import { HttpService } from '@nestjs/axios';
+import axios from 'axios';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
   private users: UserEntity[] = [];
 
   getUsers(): UserEntity[] {
     return this.users;
   }
 
-  signUp(signUpDto: IdPwDto) {
+  async signUp(signUpDto: IdPwDto) {
     const { userId, userPassword } = signUpDto;
-    for (let i = 0; i < this.users.length; i++) {
-      if (userId === this.users[i].userId)
-        throw new HttpException('hello', 405);
-    }
+    this.users.map((user) => {
+      if (user.userId === userId) {
+        throw new ForbiddenException();
+      }
+    });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userPassword, salt);
     this.users.push({
       id: this.users.length + 1,
       userId: userId,
-      userPassword: userPassword,
+      userPassword: hashedPassword,
     });
   }
 
-  signIn(signInDto: IdPwDto): string {
+  signIn(signInDto: IdPwDto): { accessToken: string } {
     const { userId, userPassword } = signInDto;
+    let returnValue: string = '';
+
     for (let i = 0; i < this.users.length; i++) {
       if (
         userId === this.users[i].userId &&
-        userPassword === this.users[i].userPassword
+        bcrypt.compare(userPassword, this.users[i].userPassword)
       ) {
-        return `${userId}님 환영합니다!`;
+        const payload = { userId };
+        const accessToken = this.jwtService.sign(payload);
+        return { accessToken: accessToken };
       }
     }
-    return `로그인에 실패하였습니다.`;
+  }
+  async getToken(code: string) {
+    const response = await axios.post('https://api.intra.42.fr/oauth/token', {
+      grant_type: 'authorization_code',
+      client_id: this.configService.get<string>('CLIENT_ID'),
+      client_secret: this.configService.get<string>('CLIENT_SECRET'),
+      code: code,
+      redirect_uri: 'http://localhost:3000/loading',
+    });
+    const ftToken = response.data.access_token;
+    console.log(ftToken);
   }
 }
