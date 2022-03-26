@@ -50,7 +50,7 @@ export class AuthService {
       }
     }
   }
-  async getToken(code: string) {
+  async getToken(code: string): Promise<string> {
     const response = await axios.post('https://api.intra.42.fr/oauth/token', {
       grant_type: 'authorization_code',
       client_id: this.configService.get<string>('CLIENT_ID'),
@@ -58,7 +58,8 @@ export class AuthService {
       code: code,
       redirect_uri: 'http://localhost:3000/loading',
     });
-    const ftToken = response.data.access_token;
-    console.log(ftToken);
+    const ftTokenObject = response.data;
+    const accessToken = this.jwtService.sign({ code });
+    return accessToken;
   }
 }

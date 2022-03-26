@@ -28,7 +28,7 @@ export class AuthController {
     return this.authService.signIn(idPwDto);
   }
   @Post('oauth')
-  getToken(@Body() code: { code: string }) {
+  getToken(@Body() code: { code: string }): Promise<string> {
     return this.authService.getToken(code.code);
   }
 }
