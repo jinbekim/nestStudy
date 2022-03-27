@@ -1,26 +1,24 @@
-<<<<<<< HEAD
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { AuthCredentialDto } from './dto/auth-credential.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { User } from './entities/user.entity';
-
+import { UsersService } from 'src/users/users.service';
+import { AuthCredentialDto } from './dto/auth-credential.dto';
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class AuthService {
-  private users: User[] = [];
-
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userService: UsersService,
+  ) {}
 
   getAllUsers() {
-    return this.users;
+    return this.userService.findAll();
   }
 
   async signIn(
     authCredentialDto: AuthCredentialDto,
   ): Promise<{ accessToken: string }> {
-    const user = this.users.find(
-      (user) => user.email === authCredentialDto.email,
-    );
+    const user = this.userService.findByEmail(authCredentialDto.email);
     if (!user)
       throw new UnauthorizedException('Email or password is incorrect');
     if (!bcrypt.compareSync(authCredentialDto.password, user.password))
@@ -37,61 +35,16 @@ export class AuthService {
 
   signUp(authCredentialDto: AuthCredentialDto) {
     let { email, password } = authCredentialDto;
-    const user = this.users.find((user) => user.email === email);
+    const user = this.userService.findByEmail(email);
     if (user) throw new UnauthorizedException('Email already exists');
     const saltRound = 10;
     const salt = bcrypt.genSaltSync(saltRound);
     const hash = bcrypt.hashSync(authCredentialDto.password, salt);
     password = hash;
-    this.users.push({
-      id: this.users.length + 1,
+    this.userService.create({
+      id: uuidv4(),
       email,
       password,
     });
   }
-=======
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { STATUS_CODES } from 'http';
-import { IdPwDto } from './dto/idpw.dto';
-import { UserEntity } from './entity/user.entity';
-
-@Injectable()
-export class AuthService {
-  private users: UserEntity[] = [];
-
-  getUsers(): UserEntity[] {
-    return this.users;
-  }
-
-  signUp(signUpDto: IdPwDto) {
-    const { userId, userPassword } = signUpDto;
-    for (let i = 0; i < this.users.length; i++) {
-      if (userId === this.users[i].userId)
-        throw new HttpException('hello', 405);
-    }
-    this.users.push({
-      id: this.users.length + 1,
-      userId: userId,
-      userPassword: userPassword,
-    });
-  }
-
-  signIn(signInDto: IdPwDto): string {
-    const { userId, userPassword } = signInDto;
-    for (let i = 0; i < this.users.length; i++) {
-      if (
-        userId === this.users[i].userId &&
-        userPassword === this.users[i].userPassword
-      ) {
-        return `${userId}님 환영합니다!`;
-      }
-    }
-    return `로그인에 실패하였습니다.`;
-  }
->>>>>>> main
 }

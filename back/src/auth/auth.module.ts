@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-<<<<<<< HEAD
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { UsersModule } from 'src/users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { FtStrategy } from './ft-strategy';
@@ -13,16 +13,9 @@ import { FtStrategy } from './ft-strategy';
       signOptions: { expiresIn: '60s' },
     }),
     ConfigModule,
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, FtStrategy],
-=======
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-
-@Module({
-  providers: [AuthService],
-  controllers: [AuthController]
->>>>>>> main
 })
 export class AuthModule {}

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import {
   Body,
   Controller,
@@ -13,17 +12,11 @@ import {
 import { FtGuard } from './42.guard';
 import { AuthService } from './auth.service';
 import { AuthCredentialDto } from './dto/auth-credential.dto';
-=======
-import { Body, Controller, Get, Post, ValidationPipe } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { IdPwDto } from './dto/idpw.dto';
->>>>>>> main
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-<<<<<<< HEAD
   @Post('sign-up')
   signUp(@Body() Body, @Body() authCredentialDto: AuthCredentialDto) {
     console.log('body', Body);
@@ -48,12 +41,13 @@ export class AuthController {
   async loginReturn(@Req() req, @Res() res) {
     const token = this.authService.signToken(req.user.username);
     res.cookie('access_token', (await token).accessToken);
-    res.redirect('http://localhost:3000/'); // 요청한 페이지로 리다이렉트 해주는게 맞지 않을까?
+    return { token };
+    // res.redirect('http://localhost:3000/'); // 요청한 페이지로 리다이렉트 해주는게 맞지 않을까?
     // 왜냐면 우리 서비스가 하나의 프론트에 종속적이게 되게 되니까.
     // 모바일 어플리케이션이나 웹사이트나 똑같이 작동했으면 좋겠는데.
     /*
      ** 이렇게 쿠키를 넘겨주는게 맞는가? -> 바로 셋 해주는게 맞을 수도 있겠다 싶은게 http only 옵션
-     ** storage에 저장하려면 또 다르겠죠.
+     ** storage에 저장하려면 또 다르겠죠. -> query string?
      ** 이렇게 리다이렉트를 해주는게 맞는가?
      ** front에서 요청은 어떠한가?
      ** 모든 프로세스를 백에서 해주는게 맞는가?
@@ -64,19 +58,5 @@ export class AuthController {
   @Get()
   getAllUsers() {
     return this.authService.getAllUsers();
-=======
-  @Get('all_users')
-  getUsers() {
-    return this.authService.getUsers();
-  }
-  @Post('sign_up')
-  signUp(@Body(ValidationPipe) idPwDto: IdPwDto) {
-    return this.authService.signUp(idPwDto);
-  }
-
-  @Post('sign_in')
-  signIn(@Body(ValidationPipe) idPwDto: IdPwDto) {
-    return this.authService.signIn(idPwDto);
->>>>>>> main
   }
 }
