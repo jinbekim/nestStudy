@@ -34,3 +34,4 @@ nestjs Study
 4주
 
 - CRUD ( db o ,TypeORM)
+- **_User <-> Boards , relation_** 
