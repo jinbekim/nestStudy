@@ -23,8 +23,9 @@ export const SignUp = () => {
         userId: id, //userId와 userPassword는 제 백엔드 api에서 post 해주는 body값이라
         userPassword: pw, //본인의 body에 맞게 post하시면 됩니다!
       });
+      alert('회원가입 완료!');
     } catch (error) {
-      console.log(error);
+      alert(error);
     }
   };
   return (

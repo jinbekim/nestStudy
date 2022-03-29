@@ -4,6 +4,9 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { HttpModule } from '@nestjs/axios';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from './entity/user.entity';
+import { FtTokenEntity } from './entity/ftToken.entity';
 
 @Module({
   imports: [
@@ -15,8 +18,10 @@ import { HttpModule } from '@nestjs/axios';
       },
     }),
     HttpModule,
+    TypeOrmModule.forFeature([UserEntity, FtTokenEntity]),
   ],
   providers: [AuthService],
   controllers: [AuthController],
+  exports: [TypeOrmModule],
 })
 export class AuthModule {}

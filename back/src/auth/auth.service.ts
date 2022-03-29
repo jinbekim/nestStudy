@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { IdPwDto } from './dto/idpw.dto';
 import { UserEntity } from './entity/user.entity';
 import * as bcrypt from 'bcryptjs';
@@ -6,48 +11,47 @@ import { JwtService } from '@nestjs/jwt';
 import { HttpService } from '@nestjs/axios';
 import axios from 'axios';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { NotFoundError } from 'rxjs';
+import { FtTokenEntity } from './entity/ftToken.entity';
+import { networkInterfaces } from 'os';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    @InjectRepository(UserEntity)
+    private usersRepositoy: Repository<UserEntity>,
+    @InjectRepository(FtTokenEntity)
+    private ftTokenRepositoy: Repository<FtTokenEntity>,
   ) {}
-  private users: UserEntity[] = [];
-
-  getUsers(): UserEntity[] {
-    return this.users;
-  }
 
   async signUp(signUpDto: IdPwDto) {
     const { userId, userPassword } = signUpDto;
-    this.users.map((user) => {
-      if (user.userId === userId) {
-        throw new ForbiddenException();
-      }
-    });
+    console.log(userId);
+    if (await this.usersRepositoy.findOne({ userId: userId })) {
+      throw new ForbiddenException();
+    }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(userPassword, salt);
-    this.users.push({
-      id: this.users.length + 1,
-      userId: userId,
-      userPassword: hashedPassword,
-    });
+
+    this.usersRepositoy.save({ userId: userId, userPassword: hashedPassword });
   }
 
-  signIn(signInDto: IdPwDto): { accessToken: string } {
+  async signIn(signInDto: IdPwDto): Promise<string> {
     const { userId, userPassword } = signInDto;
-    let returnValue: string = '';
-
-    for (let i = 0; i < this.users.length; i++) {
-      if (
-        userId === this.users[i].userId &&
-        bcrypt.compare(userPassword, this.users[i].userPassword)
-      ) {
-        const payload = { userId };
-        const accessToken = this.jwtService.sign(payload);
-        return { accessToken: accessToken };
+    const target = await this.usersRepositoy.findOne({ userId: userId });
+    if (target) {
+      if (bcrypt.compare(userPassword, target.userPassword)) {
+        const accessToken = this.jwtService.sign({ userId });
+        return accessToken;
+      } else {
+        throw NotFoundException;
       }
+    } else {
+      throw NotFoundException;
     }
   }
   async getToken(code: string): Promise<string> {
@@ -58,7 +62,14 @@ export class AuthService {
       code: code,
       redirect_uri: 'http://localhost:3000/loading',
     });
-    const ftTokenObject = response.data;
+    const ftTokenObject = response.data; //db에 저장
+    console.log(ftTokenObject);
+    this.ftTokenRepositoy.save({
+      access_token: ftTokenObject.access_token,
+      refresh_token: ftTokenObject.refresh_token,
+      created_at: ftTokenObject.created_at,
+      updated_at: Date.now.toString(),
+    });
     const accessToken = this.jwtService.sign({ code });
     return accessToken;
   }
