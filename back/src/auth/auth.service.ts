@@ -1,44 +1,29 @@
-import {
-  ConflictException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { STATUS_CODES } from 'http';
-import { IdPwDto } from './dto/idpw.dto';
-import { UserEntity } from './entity/user.entity';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { AuthCredentialsDto } from "./dto/auth-credential.dto";
+import { UserRepository } from "./user.repository";
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
-  private users: UserEntity[] = [];
+  constructor(
+    @InjectRepository(UserRepository)
+    private userRepository: UserRepository;
+  )
+  {}
 
-  getUsers(): UserEntity[] {
-    return this.users;
+  async signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+    return this.userRepository.createUser(authCredentialsDto);
   }
 
-  signUp(signUpDto: IdPwDto) {
-    const { userId, userPassword } = signUpDto;
-    for (let i = 0; i < this.users.length; i++) {
-      if (userId === this.users[i].userId)
-        throw new HttpException('hello', 405);
+  async signIn(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+    const { username, password} = authCredentialsDto;
+    const user = await this.userRepository.findOne({ username });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      return 'logIn success'
+    } else {
+      throw new UnauthorizedException('logIn failed')
     }
-    this.users.push({
-      id: this.users.length + 1,
-      userId: userId,
-      userPassword: userPassword,
-    });
   }
 
-  signIn(signInDto: IdPwDto): string {
-    const { userId, userPassword } = signInDto;
-    for (let i = 0; i < this.users.length; i++) {
-      if (
-        userId === this.users[i].userId &&
-        userPassword === this.users[i].userPassword
-      ) {
-        return `${userId}님 환영합니다!`;
-      }
-    }
-    return `로그인에 실패하였습니다.`;
-  }
 }
