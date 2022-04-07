@@ -1,5 +1,16 @@
-export class UserEntity {
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm"
+
+
+@Entity()
+@Unique(['username'])
+export class User extends BaseEntity {
+  @PrimaryGeneratedColumn()
   id: number;
-  userId: string;
-  userPassword: string;
+
+  @Column()
+  username: string;
+
+  @Column()
+  password: string;
 }
+ 
